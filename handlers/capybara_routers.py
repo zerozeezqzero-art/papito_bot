@@ -6,9 +6,12 @@ from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,
 
 #modules import
 from controller import Capybara_Controller
+from logging_bot import log_to_file
+from logging_bot import try_ex_deco
 
 #lib
 import random
+from datetime import datetime
 
 
 router = Router()
@@ -17,14 +20,12 @@ router = Router()
 
 
 
-
-
-
 @router.message(Command('capybara'))
+@try_ex_deco
 async def capybara_command_create(message:Message):
     capy = Capybara_Controller(message)
     
-    print(f"➡️ Пользователь {capy.usern} написал команду /capybara")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /capybara")
     
     if capy.create_capy():
         await message.answer_photo(FSInputFile(capy.images['capy_born']),caption=f'КАПИБАРА {capy.usern} СОЗДАНА!')
@@ -34,11 +35,13 @@ async def capybara_command_create(message:Message):
         capy.close()
 
 
+
 @router.message(Command('capyfeed'))
+@try_ex_deco
 async def capybara_command_feed(message:Message):
     capy = Capybara_Controller(message)
    
-    print(f"➡️ Пользователь {capy.usern} написал команду /capyfeed")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /capyfeed")
     result, success = capy.feed_capy(message)
     
     
@@ -57,9 +60,10 @@ async def capybara_command_feed(message:Message):
 
 
 @router.message(Command('capylevel'))
+@try_ex_deco
 async def capybara_command_level(message:Message):
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /capylevel")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /capylevel")
     lvl, success = capy.get_capy_level(message)
     if success == 'No_capy' or not success:
         await message.answer('❌ У тебя нет капибары! Создай командой /capybara')
@@ -70,33 +74,31 @@ async def capybara_command_level(message:Message):
 
 
 @router.message(Command('leaderboard'))
+@try_ex_deco
 async def leaderboard_command(message:Message):
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /leaderboard")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /leaderboard")
     result = capy.leaderboard()
     await message.answer_photo(FSInputFile(capy.images['capy_leader_board']),caption=result)
     capy.close()
 
 
 @router.message(Command('photo'))
+@try_ex_deco
 async def capybara_photo_command(message:Message):
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /photo")
-    try:
-        copibara = FSInputFile(random.choice(capy.images['random_capy']))
-        await message.answer_photo(copibara, caption="вот и твоя капибара...")
-    except Exception as e:
-        await message.answer(f'Ошибка, попробуй позже!')
-        print(e)
-    finally:
-        capy.close()
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /photo")
+    copibara = FSInputFile(random.choice(capy.images['random_capy']))
+    await message.answer_photo(copibara, caption="вот и твоя капибара...")
+    capy.close()
 
 
 
 @router.message(Command('papito_tokens'))
+@try_ex_deco
 async def papito_tokens_command(message:Message):
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /papito_tokens")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /papito_tokens")
     result, success = capy.get_papito_tokens(message)
     if success == 'No_capy' or not success:
         await message.answer('❌ У тебя нет капибары! Создай командой /capybara')
@@ -105,9 +107,10 @@ async def papito_tokens_command(message:Message):
 
 
 @router.message(Command('shop'))
+@try_ex_deco
 async def shop_command(message:Message):
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /shop")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /shop")
     button1 = InlineKeyboardButton(
         text="🍎 Яблоко - 50 🪙",
         callback_data="buy_1"
@@ -133,7 +136,9 @@ async def shop_command(message:Message):
     
     capy.close()
 
+
 @router.callback_query(lambda c:c.data == 'buy_1')
+@try_ex_deco
 async def buy1_command(callback : callback_query):
 
     class FakeMessage:
@@ -141,7 +146,7 @@ async def buy1_command(callback : callback_query):
 
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
-    print(f"➡️ Пользователь {capy.usern} нажал кнопку: Яблоко")
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Яблоко")
 
 
     result,succsess = capy.purchase_item(fakemessage,1)
@@ -157,6 +162,7 @@ async def buy1_command(callback : callback_query):
 
 
 @router.callback_query(lambda c:c.data == 'buy_2')
+@try_ex_deco
 async def buy2_command(callback : callback_query):
 
     class FakeMessage:
@@ -164,7 +170,7 @@ async def buy2_command(callback : callback_query):
 
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
-    print(f"➡️ Пользователь {capy.usern} нажал кнопку: Яблоко")
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Арбуз")
 
 
     result,succsess = capy.purchase_item(fakemessage,2)
@@ -178,6 +184,7 @@ async def buy2_command(callback : callback_query):
 
 
 @router.callback_query(lambda c:c.data == 'buy_3')
+@try_ex_deco
 async def buy3_command(callback : callback_query):
 
     class FakeMessage:
@@ -185,7 +192,7 @@ async def buy3_command(callback : callback_query):
 
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
-    print(f"➡️ Пользователь {capy.usern} нажал кнопку: Яблоко")
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Лотерея")
 
 
     result,succsess = capy.purchase_item(fakemessage,3)

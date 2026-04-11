@@ -6,7 +6,8 @@ from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,
 #modules import
 from controller import Capybara_Controller
 from .help import help_command
-
+from logging_bot import log_to_file
+from logging_bot import try_ex_deco
 #lib
 import random
 
@@ -15,10 +16,10 @@ import random
 router = Router()
 
 @router.message(Command('start'))
+@try_ex_deco
 async def start_command(message):
-
     capy = Capybara_Controller(message)
-    print(f"➡️ Пользователь {capy.usern} написал команду /start")
+    log_to_file(f"➡️ Пользователь {capy.usern} написал команду /start")
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="➡️  ЧТО Я УМЕЮ  ⬅️", callback_data="help")]
