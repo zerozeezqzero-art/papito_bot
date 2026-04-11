@@ -60,6 +60,7 @@ class Capybara_Controller:
     @capybara_req_dec
     def feed_capy(self, message):
         cooldown = 5
+        'aaaa'
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
         if result:
