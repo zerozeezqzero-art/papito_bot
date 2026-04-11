@@ -18,7 +18,7 @@ from handlers import info_router
 #lib
 import os
 from datetime import datetime
-
+from controller import get_current_time
 
 #config
 load_dotenv()
@@ -38,7 +38,7 @@ dp.include_router(info_router)
 async def start():
     bot = Bot(token=BOT_TOKEN)
     with open('bot_log.txt', 'a',encoding='UTF-8') as f:
-        f.write(f"{datetime.now()} - Бот запущен!\n")
+        f.write(f"{get_current_time} - Бот запущен!\n")
 
     print('starting...')
     await dp.start_polling(bot)

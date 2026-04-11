@@ -1,0 +1,11 @@
+2026-04-11 18:41:49.070523 - Бот запущен!
+2026-04-11 18:43:04.914238 - Бот запущен!
+2026-04-11 18:43:42.223247 - Бот запущен!
+2026-04-11 18:43:42.573389 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 18:43:44.684553 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 18:43:46.597959 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+<function get_current_time at 0x000001C8C83DD4E0> - Бот запущен!
+<function get_current_time at 0x0000016446BCD380> - Бот запущен!
+<function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed
+<function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed
+<function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed

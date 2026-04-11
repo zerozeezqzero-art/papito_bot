@@ -1,75 +1,65 @@
-#lib
 import sqlite3
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import re
 import json
 import random
 
+import os
 
+def get_current_time():
+    # Если на сервере (Bot Host.ru) — прибавляем 3 часа
+    if 'BOTHOST' in os.environ or 'bot_host' in os.environ.get('HOSTNAME', '').lower():
+        return datetime.now() + timedelta(hours=3)
+    # Если локально — оставляем как есть
+    return datetime.now()
 
 class Capybara_Controller:
-    def __init__(self,message):
-        
-
-
-
-
-        #conect
-
+    def __init__(self, message):
         self.us = message.from_user.username or message.from_user.first_name or str(message.from_user.id)
-        #connection
         self.conn = sqlite3.connect('capy.db')
         self.cursor = self.conn.cursor()
 
-
-        #name validation for sql
-
-
         safe = re.sub(r'[^a-zA-Z0-9_]', '_', str(self.us))
-   
         if safe and safe[0].isdigit():
             safe = 'user_' + safe
-        
         self.usern = safe
-   
-        # capybara_imgaes 
-        self.images = { 'random_capy' :
-              ["capy_baras/capy_bara.png",
-              "capy_baras/capy_bara2.jpg",
-              "capy_baras/capy_bara3.jpg",
-              "capy_baras/capy_bara4.jpg",
-              "capy_baras/capy_bara5.jpg",
-              "capy_baras/capy_bara6.jpg"],
 
-
-                        'greeting_photo' : "capy_baras/capy_bara_greet.jpg",
-                        'help_photo' : "capy_baras/capy_bara_help.jpg",
-                        'gpt_photo' : 'capy_baras/capy_bara_gpt.jpg',
-                        'capy_born' : 'capy_baras/capy_bara_rodilas.jpg',
-                        'capy_eat': 'capy_baras/capybara_eat.jpg',
-                        'capy_leader_board' : 'capy_baras/capy_bara_leader.png'
-                        }
+        self.images = {
+            'random_capy': [
+                "capy_baras/capy_bara.png",
+                "capy_baras/capy_bara2.jpg",
+                "capy_baras/capy_bara3.jpg",
+                "capy_baras/capy_bara4.jpg",
+                "capy_baras/capy_bara5.jpg",
+                "capy_baras/capy_bara6.jpg"
+            ],
+            'greeting_photo': "capy_baras/capy_bara_greet.jpg",
+            'help_photo': "capy_baras/capy_bara_help.jpg",
+            'gpt_photo': 'capy_baras/capy_bara_gpt.jpg',
+            'capy_born': 'capy_baras/capy_bara_rodilas.jpg',
+            'capy_eat': 'capy_baras/capybara_eat.jpg',
+            'capy_leader_board': 'capy_baras/capy_bara_leader.png'
+        }
+        
         self.shop_items = {
             1: {'name': 'Яблоко🍎', 'price': 50, 'emoji': '🍎', 'description': 'Ускоряет кормление на 1 минуту'},
-            2: {'name': 'Арбуз🍉', 'price': 100,'description': 'Даёт +2 уровня сразу'},
-            3: {'name': 'Лотерейный билет🎲', 'price': 25,'description': 'Случайный приз от 0 до 100 токенов'},
+            2: {'name': 'Арбуз🍉', 'price': 100, 'description': 'Даёт +2 уровня сразу'},
+            3: {'name': 'Лотерейный билет🎲', 'price': 25, 'description': 'Случайный приз от 0 до 100 токенов'},
         }
 
     def capybara_req_dec(func):
-        def wrapper(self,message, *args, **kwargs):
+        def wrapper(self, message, *args, **kwargs):
             temp_capy = Capybara_Controller(message)
             temp_capy.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{temp_capy.usern}'")
             result = temp_capy.cursor.fetchone()
-            #temp_capy.close()
             if result:
-                return func(self,message,*args,**kwargs)
+                return func(self, message, *args, **kwargs)
             else:
-                return (None,'No_capy')
+                return (None, 'No_capy')
         return wrapper
 
-
     @capybara_req_dec
-    def feed_capy(self,message):
+    def feed_capy(self, message):
         cooldown = 5
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
@@ -78,34 +68,27 @@ class Capybara_Controller:
             if 'Яблоко🍎' in inventory:
                 cooldown = 4
 
-        now = datetime.now()
- 
+        now = get_current_time()
 
         self.cursor.execute(f'SELECT last_feed FROM "{self.usern}"')
         last_feed_result = self.cursor.fetchone()
         last_feed = last_feed_result[0]
         if isinstance(last_feed, str):
             last_feed = datetime.fromisoformat(last_feed)
-        
+
         if now - last_feed < timedelta(minutes=cooldown):
             next_feed_time = last_feed + timedelta(minutes=cooldown)
             time_left = next_feed_time - now
-            
             minutes_left = int(time_left.total_seconds() // 60)
             seconds_left = int(time_left.total_seconds() % 60)
-            
-            return (f'🐹 Капибара сыта и довольна! Приходи покормить её через {minutes_left} мин {seconds_left} сек 🕐',False)
-        
+            return (f'🐹 Капибара сыта и довольна! Приходи покормить её через {minutes_left} мин {seconds_left} сек 🕐', False)
         else:
             self.cursor.execute(f'''UPDATE "{self.usern}" 
-            SET capybara_level = capybara_level + 1, 
-            last_feed = ?,
-            papito_tokens = papito_tokens + 25''', (now,))
+                            SET capybara_level = capybara_level + 1, 
+                            last_feed = ?,
+                            papito_tokens = papito_tokens + 25''', (now,))
             self.conn.commit()
-        return ('✅ Капибара покормлена! +1 уровень и +25 токенов 🎉🐹💰', True)
-    
-
-
+            return ('✅ Капибара покормлена! +1 уровень и +25 токенов 🎉🐹💰', True)
 
     def create_capy(self):
         self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.usern}'")
@@ -115,10 +98,9 @@ class Capybara_Controller:
             count = self.cursor.fetchone()[0]
             if count > 0:
                 return False
-
             self.cursor.execute(f'''INSERT INTO "{self.usern}" 
-                            (capybara_name, last_feed) VALUES (?, ?)''',
-                            (f"Capy_{self.usern}", datetime.now()))
+                                (capybara_name, last_feed) VALUES (?, ?)''',
+                                (f"Capy_{self.usern}", get_current_time()))
             self.conn.commit()
             return True
         else:
@@ -129,57 +111,41 @@ class Capybara_Controller:
                                     papito_tokens INTEGER DEFAULT 1,
                                     inventory TEXT DEFAULT '[]'
                                 )''')
-
-
             self.cursor.execute(f'''INSERT INTO "{self.usern}" 
                                 (capybara_name, last_feed) VALUES (?, ?)''',
-                                (f"Capy_{self.usern}", datetime.now()))
-
+                                (f"Capy_{self.usern}", get_current_time()))
             self.conn.commit()
             return True
-        
 
-        
     def close(self):
         self.conn.close()
-    
 
     @capybara_req_dec
-    def get_capy_level(self,message):
-        self.cursor.execute(f'''SELECT capybara_level from "{self.usern}"
-        ''')
+    def get_capy_level(self, message):
+        self.cursor.execute(f'SELECT capybara_level FROM "{self.usern}"')
         result = self.cursor.fetchone()
-
         if result:
-            return (result[0],True)
+            return (result[0], True)
         else:
-            return (None,False)
-    
+            return (None, False)
+
     def leaderboard(self):
-        
-        
-        self.cursor.execute(f'''SELECT name FROM sqlite_master WHERE type="table"''')
+        self.cursor.execute(f'SELECT name FROM sqlite_master WHERE type="table"')
         names = [item[0] for item in self.cursor.fetchall() if not item[0].startswith('sqlite_')]
         values = []
 
-
         for table_name in names:
-            self.cursor.execute(f'''SELECT capybara_level FROM "{table_name}"''')
+            self.cursor.execute(f'SELECT capybara_level FROM "{table_name}"')
             level_result = self.cursor.fetchone()
             if level_result:
-                    values.append(level_result[0])
+                values.append(level_result[0])
 
-        leaderboard_dict = dict(zip(names,values))
-
-
-        """Форматирует словарь рейтинга в красивую таблицу"""
+        leaderboard_dict = dict(zip(names, values))
 
         if not leaderboard_dict:
             return "🏆 Пока нет капибар для рейтинга! Создайте первую капибару командой /capybara"
 
-
         sorted_items = sorted(leaderboard_dict.items(), key=lambda x: x[1], reverse=True)
-
         top_items = sorted_items[:10]
 
         lines = ["🏆 **ТОП КАПИБАР** 🏆", ""]
@@ -194,22 +160,20 @@ class Capybara_Controller:
                 medal = "🥉"
             else:
                 medal = "📊"
-            
             lines.append(f"{medal} {i}. {name} — {level} lvl")
 
-        # Добавляем статистику
         lines.append("")
         lines.append(f"📊 Всего капибар: {len(leaderboard_dict)}")
         return "\n".join(lines)
-    
+
     @capybara_req_dec
-    def get_papito_tokens(self,message):
-        self.cursor.execute(f'''SELECT papito_tokens FROM "{self.usern}"''')
+    def get_papito_tokens(self, message):
+        self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
         papito_tokens = self.cursor.fetchone()[0]
-        return (f'У вас {papito_tokens} папито токенов💵',True)
-    
+        return (f'🪙 У вас {papito_tokens} папито токенов!', True)
+
     @capybara_req_dec
-    def purchase_item(self,message,item_id):
+    def purchase_item(self, message, item_id):
         pay = self.shop_items[item_id]['price']
         item = self.shop_items[item_id]['name']
         self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
@@ -222,26 +186,21 @@ class Capybara_Controller:
                 result = self.cursor.fetchone()
                 inventory = json.loads(result[0]) if result and result[0] else []
                 if item in inventory:
-                    return ('Вы уже купили это',False)
+                    return ('Вы уже купили это', False)
                 else:
-                    
-                    inventory.append(item)  
-                    self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?',(json.dumps(inventory),))
+                    inventory.append(item)
+                    self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
                     self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
                     self.conn.commit()
                     return (f"✅ {item} куплен!", True)
             elif item_id == 2:
-                self.cursor.execute(F'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
+                self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
                 self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
                 self.conn.commit()
-                return (f"✅ {item} куплен!,вам добавлено 2 уровня", True)
-            
-            
+                return (f"✅ {item} куплен! +2 уровня", True)
             elif item_id == 3:
-                random_tok = random.randint(1,101)
+                random_tok = random.randint(1, 101)
                 self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
                 self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (random_tok,))
                 self.conn.commit()
-                return (f"✅ {item} куплен!,вам добавлено {random_tok} папито токенов", True)
-        
-        
+                return (f"✅ {item} куплен! +{random_tok} токенов", True)

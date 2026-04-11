@@ -1,9 +1,12 @@
 from datetime import datetime
 import functools
 
+from controller import get_current_time
+
+
 def log_to_file(text):
     with open('bot_log.txt', 'a',encoding='UTF-8') as f:
-        f.write(f"{datetime.now()} - {text}\n")
+        f.write(f"{get_current_time} - {text}\n")
 
 
 def try_ex_deco(func):
