@@ -1,7 +1,8 @@
 import requests
 from dotenv import load_dotenv
 import os
-from logging_bot import try_ex_deco
+import asyncio
+from logging_bot import try_ex_deco_sync
 
 load_dotenv()
 
@@ -10,7 +11,7 @@ FOLDER_ID = os.getenv("FOLDER_ID")
 API_KEY =  os.getenv("API_KEY")
 
 
-@try_ex_deco
+@try_ex_deco_sync
 def gpt_answer(text):
     response = requests.post(
         "https://llm.api.cloud.yandex.net/foundationModels/v1/completion",
