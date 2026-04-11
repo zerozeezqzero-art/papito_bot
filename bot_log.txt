@@ -9,3 +9,41 @@
 <function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed
 <function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed
 <function get_current_time at 0x0000016446BCD380> - ➡️ Пользователь ruby_skull написал команду /capyfeed
+<function get_current_time at 0x000001FFB693D590> - Бот запущен!
+2026-04-11 20:35:11.468431 - Бот запущен!
+2026-04-11 20:38:08.997148 - Бот запущен!
+<function get_current_time at 0x000001C2985BD2D0> - ➡️ Пользователь ruby_skull написал команду /start
+<function get_current_time at 0x000001C2985BD2D0> - ➡️ Пользователь ruby_skull написал команду /start
+<function get_current_time at 0x000001C2985BD2D0> - ➡️ Пользователь ruby_skull написал команду /start
+<function get_current_time at 0x000001C2985BD2D0> - ➡️ Пользователь Papito_313bot написал команду /help
+<function get_current_time at 0x000001C2985BD2D0> - ➡️ Пользователь Papito_313bot написал команду /help
+2026-04-11 20:39:15.046484 - Бот запущен!
+2026-04-11 20:39:32.798544 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 20:39:38.852607 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:43:06.739445+00:00 - Бот запущен!
+2026-04-11 17:43:18.443116+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:43:18.444166+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:43:29.605605+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:43:29.606465+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:29.707572+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:29.708431+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:42.548044+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:42.549007+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:43.218420+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:43.219305+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:43.922076+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:43.922997+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:44.458112+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:44.458961+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:45.097265+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:45.098181+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:45:46.634809+00:00 - ➡️ Пользователь ruby_skull написал команду /start
+2026-04-11 17:45:53.749809+00:00 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:45:53.750609+00:00 - ОШИБКА в capybara_command_feed: can't subtract offset-naive and offset-aware datetimes
+2026-04-11 17:46:09.549894+00:00 - ➡️ Пользователь ruby_skull написал команду /start
+2026-04-11 17:48:39.753416 - Бот запущен!
+2026-04-11 17:48:43.223005 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:48:53.362669 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:50:10.105069 - Бот запущен!
+2026-04-11 17:50:14.111973 - ➡️ Пользователь ruby_skull написал команду /capyfeed
+2026-04-11 17:50:16.921304 - ➡️ Пользователь ruby_skull написал команду /capyfeed

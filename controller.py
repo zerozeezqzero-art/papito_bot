@@ -1,16 +1,12 @@
+#lib
 import sqlite3
 from datetime import datetime, timedelta
 import re
 import json
 import random
-import os
 
 def get_current_time():
-    # Прибавляем 3 часа для сервера Bot Host.ru
-    # Если на сервере переменная окружения BOTHOST не установлена, проверяем по hostname
-    if 'BOTHOST' in os.environ or (os.environ.get('HOSTNAME', '').lower().find('bot_host') != -1):
-        return datetime.now() + timedelta(hours=3)
-    return datetime.now()
+    return datetime.utcnow()
 
 class Capybara_Controller:
     def __init__(self, message):
@@ -59,8 +55,9 @@ class Capybara_Controller:
 
     @capybara_req_dec
     def feed_capy(self, message):
+        now = get_current_time()
+        
         cooldown = 5
-        'aaaa'
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
         if result:
@@ -68,26 +65,26 @@ class Capybara_Controller:
             if 'Яблоко🍎' in inventory:
                 cooldown = 4
 
-        now = get_current_time()
-
         self.cursor.execute(f'SELECT last_feed FROM "{self.usern}"')
-        last_feed_result = self.cursor.fetchone()
+        last_feed_result = self.cursor.fetchone()  
         if not last_feed_result or not last_feed_result[0]:
-            # Если нет last_feed, создаём новую запись
-            self.cursor.execute(f'''UPDATE "{self.usern}" SET last_feed = ?''', (now,))
+            self.cursor.execute(f'UPDATE "{self.usern}" SET last_feed = ?', (now,))
             self.conn.commit()
             return ('🐹 Капибара готова к кормлению!', True)
         
         last_feed = last_feed_result[0]
         if isinstance(last_feed, str):
             last_feed = datetime.fromisoformat(last_feed)
+        
+        if hasattr(last_feed, 'tzinfo') and last_feed.tzinfo is not None:
+            last_feed = last_feed.replace(tzinfo=None)
 
         if now - last_feed < timedelta(minutes=cooldown):
             next_feed_time = last_feed + timedelta(minutes=cooldown)
             time_left = next_feed_time - now
             minutes_left = int(time_left.total_seconds() // 60)
             seconds_left = int(time_left.total_seconds() % 60)
-            return (f'🐹 Капибара сыта и довольна! Приходи покормить её через {minutes_left} мин {seconds_left} сек 🕐', False)
+            return (f'🐹 Капибара сыта! Приходи через {minutes_left} мин {seconds_left} сек 🕐', False)
         else:
             self.cursor.execute(f'''UPDATE "{self.usern}" 
                             SET capybara_level = capybara_level + 1, 
@@ -95,6 +92,7 @@ class Capybara_Controller:
                             papito_tokens = papito_tokens + 25''', (now,))
             self.conn.commit()
             return ('✅ Капибара покормлена! +1 уровень и +25 токенов 🎉🐹💰', True)
+
 
     def create_capy(self):
         self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.usern}'")

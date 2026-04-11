@@ -11,7 +11,6 @@ from logging_bot import try_ex_deco
 
 #lib
 import random
-from datetime import datetime
 
 
 router = Router()

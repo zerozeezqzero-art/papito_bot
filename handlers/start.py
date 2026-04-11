@@ -1,15 +1,14 @@
 #aio
 from aiogram import Router
 from aiogram.filters import Command
-from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,SwitchInlineQueryChosenChat
+from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup
 
 #modules import
 from controller import Capybara_Controller
 from .help import help_command
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
-#lib
-import random
+
 
 
 
