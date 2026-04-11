@@ -3,14 +3,13 @@ from datetime import datetime, timedelta
 import re
 import json
 import random
-
 import os
 
 def get_current_time():
-    # Если на сервере (Bot Host.ru) — прибавляем 3 часа
-    if 'BOTHOST' in os.environ or 'bot_host' in os.environ.get('HOSTNAME', '').lower():
+    # Прибавляем 3 часа для сервера Bot Host.ru
+    # Если на сервере переменная окружения BOTHOST не установлена, проверяем по hostname
+    if 'BOTHOST' in os.environ or (os.environ.get('HOSTNAME', '').lower().find('bot_host') != -1):
         return datetime.now() + timedelta(hours=3)
-    # Если локально — оставляем как есть
     return datetime.now()
 
 class Capybara_Controller:
@@ -72,6 +71,12 @@ class Capybara_Controller:
 
         self.cursor.execute(f'SELECT last_feed FROM "{self.usern}"')
         last_feed_result = self.cursor.fetchone()
+        if not last_feed_result or not last_feed_result[0]:
+            # Если нет last_feed, создаём новую запись
+            self.cursor.execute(f'''UPDATE "{self.usern}" SET last_feed = ?''', (now,))
+            self.conn.commit()
+            return ('🐹 Капибара готова к кормлению!', True)
+        
         last_feed = last_feed_result[0]
         if isinstance(last_feed, str):
             last_feed = datetime.fromisoformat(last_feed)
@@ -169,38 +174,43 @@ class Capybara_Controller:
     @capybara_req_dec
     def get_papito_tokens(self, message):
         self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
-        papito_tokens = self.cursor.fetchone()[0]
-        return (f'🪙 У вас {papito_tokens} папито токенов!', True)
+        result = self.cursor.fetchone()
+        if result:
+            return (f'🪙 У вас {result[0]} папито токенов!', True)
+        return ('❌ Ошибка получения токенов', False)
 
     @capybara_req_dec
     def purchase_item(self, message, item_id):
+        if item_id not in self.shop_items:
+            return ('❌ Товар не найден!', False)
+            
         pay = self.shop_items[item_id]['price']
         item = self.shop_items[item_id]['name']
+        
         self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
-        tokens = self.cursor.fetchone()[0]
+        tokens_result = self.cursor.fetchone()
+        tokens = tokens_result[0] if tokens_result else 0
+        
         if tokens < pay:
             return (f"❌ Не хватает токенов! Нужно {pay}, у тебя {tokens}", False)
-        else:
-            if item_id == 1:
-                self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
-                result = self.cursor.fetchone()
-                inventory = json.loads(result[0]) if result and result[0] else []
-                if item in inventory:
-                    return ('Вы уже купили это', False)
-                else:
-                    inventory.append(item)
-                    self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
-                    self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-                    self.conn.commit()
-                    return (f"✅ {item} куплен!", True)
-            elif item_id == 2:
-                self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
-                self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-                self.conn.commit()
-                return (f"✅ {item} куплен! +2 уровня", True)
-            elif item_id == 3:
-                random_tok = random.randint(1, 101)
-                self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-                self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (random_tok,))
-                self.conn.commit()
-                return (f"✅ {item} куплен! +{random_tok} токенов", True)
+        
+        if item_id == 1:
+            self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
+            result = self.cursor.fetchone()
+            inventory = json.loads(result[0]) if result and result[0] else []
+            if item in inventory:
+                return ('Вы уже купили это', False)
+            inventory.append(item)
+            self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
+        elif item_id == 2:
+            self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
+        elif item_id == 3:
+            random_tok = random.randint(1, 101)
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (random_tok,))
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+            self.conn.commit()
+            return (f"✅ {item} куплен! +{random_tok} токенов", True)
+        
+        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+        self.conn.commit()
+        return (f"✅ {item} куплен!", True)
