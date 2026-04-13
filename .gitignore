@@ -5,3 +5,5 @@ __pycache__/
 .env
 .env.local
 *.db
+"capy_baras/"
+"mangomons/"
