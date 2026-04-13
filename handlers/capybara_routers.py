@@ -8,6 +8,7 @@ from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,
 from controller import Capybara_Controller
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
+from logging_bot import troll_check
 
 #lib
 import random
@@ -20,6 +21,7 @@ router = Router()
 
 
 @router.message(Command('capybara'))
+@troll_check
 @try_ex_deco
 async def capybara_command_create(message:Message):
     capy = Capybara_Controller(message)
@@ -36,6 +38,7 @@ async def capybara_command_create(message:Message):
 
 
 @router.message(Command('capyfeed'))
+@troll_check
 @try_ex_deco
 async def capybara_command_feed(message:Message):
     capy = Capybara_Controller(message)
@@ -59,6 +62,7 @@ async def capybara_command_feed(message:Message):
 
 
 @router.message(Command('capylevel'))
+@troll_check
 @try_ex_deco
 async def capybara_command_level(message:Message):
     capy = Capybara_Controller(message)
@@ -83,6 +87,7 @@ async def leaderboard_command(message:Message):
 
 
 @router.message(Command('photo'))
+@troll_check
 @try_ex_deco
 async def capybara_photo_command(message:Message):
     capy = Capybara_Controller(message)
@@ -94,6 +99,7 @@ async def capybara_photo_command(message:Message):
 
 
 @router.message(Command('papito_tokens'))
+@troll_check
 @try_ex_deco
 async def papito_tokens_command(message:Message):
     capy = Capybara_Controller(message)
@@ -106,6 +112,7 @@ async def papito_tokens_command(message:Message):
 
 
 @router.message(Command('shop'))
+@troll_check
 @try_ex_deco
 async def shop_command(message:Message):
     capy = Capybara_Controller(message)

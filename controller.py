@@ -13,13 +13,13 @@ class Capybara_Controller:
         self.us = message.from_user.username or message.from_user.first_name or str(message.from_user.id)
         self.conn = sqlite3.connect('capy.db')
         self.cursor = self.conn.cursor()
-
+        self.admin_id = 1404725120
         safe = re.sub(r'[^a-zA-Z0-9_]', '_', str(self.us))
         if safe and safe[0].isdigit():
             safe = 'user_' + safe
         self.usern = safe
         self.images = {
-            
+           
             'mangomons' : {
                 'basic_mango' : 'mangomons/mangomon_basic.png',
                 'epic_mango' : 'mangomons/mangomon_epic.png',
@@ -146,7 +146,8 @@ class Capybara_Controller:
                                     last_feed TIMESTAMP,
                                     papito_tokens INTEGER DEFAULT 1,
                                     inventory TEXT DEFAULT '[]',
-                                    mangomon TEXT
+                                    mangomon TEXT,
+                                    troll_mode INTEGER DEFAULT 0
                                 )''')
             self.cursor.execute(f'''INSERT INTO "{self.usern}" 
                                 (capybara_name, last_feed) VALUES (?, ?)''',
@@ -258,13 +259,13 @@ class Capybara_Controller:
     def buy_mangomon(self,message):
         self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
         result = self.cursor.fetchone()
-        if result[0] < 500:
-            return (f"Не хватает папито токенов! Нужно 500 а у тебя {result[0]}",False)
+        if result[0] < 350:
+            return (f"Не хватает папито токенов! Нужно 350 а у тебя {result[0]}",False)
         else:
             mango_types = list(self.images['mangomons'].keys())
             chances = [45, 30, 15, 10]
             new_mango = random.choices(mango_types,weights=chances,k=1)[0]
-            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - 500')
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - 350')
             self.cursor.execute(f'UPDATE "{self.usern}" SET mangomon =?',(new_mango,))
             if new_mango == 'epic_mango':
                 self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + 500')
@@ -282,3 +283,31 @@ class Capybara_Controller:
             return (result[0],True)
         else:
             return ('У вас нету мангомона! Купите командой /buy_mango',False)
+        
+    @capybara_req_dec
+    def tapalka(self,message):
+        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + 1')
+        self.conn.commit()
+        return (f'🪙 +1 папито токен!', True)
+    
+
+    @capybara_req_dec
+    def dudosing(self,message,target_username):
+        self.cursor.execute(f'UPDATE "{target_username}" SET troll_mode = 1')
+        self.conn.commit()
+        return (f'🤡 Режим троллинга включён для @{target_username}!', True)
+
+
+    @capybara_req_dec
+    def stop_dudosing(self,message,target_username):
+        self.cursor.execute(f'UPDATE "{target_username}" SET troll_mode = 0')
+        self.conn.commit()
+        return (f'✅ Режим троллинга выключен для @{target_username}', True)
+
+
+    def is_troll_mode(self, username):
+        """Проверяет, включён ли режим троллинга для пользователя"""
+        self.cursor.execute(f'SELECT troll_mode FROM "{username}"')
+        result = self.cursor.fetchone()
+        return result and result[0] == 1
+

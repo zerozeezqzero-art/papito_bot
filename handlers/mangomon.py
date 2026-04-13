@@ -10,7 +10,7 @@ router = Router()
 @try_ex_deco
 async def buy_mango_command(message: Message):
     capy = Capybara_Controller(message)
-    log_to_file(f'Пользователь {capy.usern} написал команды buy_mango')
+    log_to_file(f'Пользователь {capy.usern} написал команду /buy_mango')
     result,successful = capy.buy_mangomon(message)
     if successful:
         photo = capy.images['mangomons'][result]

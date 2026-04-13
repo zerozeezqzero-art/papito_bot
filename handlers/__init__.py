@@ -4,3 +4,5 @@ from .gpt import router as gpt_router
 from .capybara_routers import router as capy_router
 from .info import router as info_router
 from .mangomon import router as mango_router
+from .tapalka import router as tap_router
+from .dudosing import router as dudos_router

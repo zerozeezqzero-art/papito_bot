@@ -9,11 +9,12 @@ from controller import Capybara_Controller
 from gpt_func import gpt_answer
 from  logging_bot import log_to_file
 from logging_bot import try_ex_deco
-
+from logging_bot import troll_check
 router = Router()
 
 
 @router.message(Command('gpt'))
+@troll_check
 @try_ex_deco
 async def gpt_command(message):
     capy = Capybara_Controller(message)
