@@ -15,14 +15,12 @@ from handlers import info_router
 from handlers import mango_router
 from handlers import tap_router
 from handlers import dudos_router
+from handlers import idea_router
 
 
 #lib
 import os
-from datetime import datetime
 from controller import get_current_time
-import sqlite3
-import random
 from logging_bot import log_to_file,try_ex_deco
 
 #config
@@ -40,6 +38,7 @@ dp.include_router(info_router)
 dp.include_router(mango_router)
 dp.include_router(tap_router)
 dp.include_router(dudos_router)
+dp.include_router(idea_router)
 
 async def start():
     bot = Bot(token=BOT_TOKEN)

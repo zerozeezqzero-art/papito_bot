@@ -39,4 +39,6 @@ async def help_command(message):
 💵 /papito_tokens - узнать баланс папито токенов
 🛒 /shop - магазин за папито токены
 🍊 /buy_mango - купить мангомон
-🍊 /my_mango - посмотреть какой у тебя мангомон''',reply_markup=keyboard)
+🍊 /my_mango - посмотреть какой у тебя мангомон
+👾 /tapalka - тапать за папито токены
+💡 /idea "Ваша идея" - предложить идея для развития папито бота''',reply_markup=keyboard)
