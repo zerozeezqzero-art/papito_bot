@@ -12,6 +12,7 @@ from handlers import help_router
 from handlers import gpt_router
 from handlers import capy_router
 from handlers import info_router    
+from handlers import mango_router
 
 
 
@@ -32,6 +33,7 @@ dp.include_router(help_router)
 dp.include_router(gpt_router)
 dp.include_router(capy_router)
 dp.include_router(info_router)
+dp.include_router(mango_router)
 
 
 
@@ -44,4 +46,3 @@ async def start():
     await dp.start_polling(bot)
 
 asyncio.run(start())
-

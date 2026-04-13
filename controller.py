@@ -18,8 +18,15 @@ class Capybara_Controller:
         if safe and safe[0].isdigit():
             safe = 'user_' + safe
         self.usern = safe
-
         self.images = {
+            
+            'mangomons' : {
+                'basic_mango' : 'mangomons/mangomon_basic.png',
+                'epic_mango' : 'mangomons/mangomon_epic.png',
+                'mythic_mango' : 'mangomons/mangomon_mythic.png',
+                'legendary_mango' : 'mangomons/mangomon_legendary.png'
+            },
+
             'random_capy': [
                 "capy_baras/capy_bara.png",
                 "capy_baras/capy_bara2.jpg",
@@ -33,13 +40,15 @@ class Capybara_Controller:
             'gpt_photo': 'capy_baras/capy_bara_gpt.jpg',
             'capy_born': 'capy_baras/capy_bara_rodilas.jpg',
             'capy_eat': 'capy_baras/capybara_eat.jpg',
-            'capy_leader_board': 'capy_baras/capy_bara_leader.png'
+            'capy_leader_board': 'capy_baras/capy_bara_leader.png',
+            "capy_pokormlena" : 'capy_baras/capy_bara_pokormlena.jpg',
+            'capy_shop' : 'capy_baras/capy_shop.jpg'
         }
         
         self.shop_items = {
             1: {'name': 'Яблоко🍎', 'price': 50, 'emoji': '🍎', 'description': 'Ускоряет кормление на 1 минуту'},
             2: {'name': 'Арбуз🍉', 'price': 100, 'description': 'Даёт +2 уровня сразу'},
-            3: {'name': 'Лотерейный билет🎲', 'price': 25, 'description': 'Случайный приз от 0 до 100 токенов'},
+            3: {'name': 'Лотерейный билет🎲', 'price': 45, 'description': 'Случайный приз от 0 до 100 токенов'},
         }
 
     def capybara_req_dec(func):
@@ -56,14 +65,30 @@ class Capybara_Controller:
     @capybara_req_dec
     def feed_capy(self, message):
         now = get_current_time()
-        
         cooldown = 5
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
         if result:
             inventory = json.loads(result[0])
             if 'Яблоко🍎' in inventory:
-                cooldown = 4
+                cooldown = cooldown - 1
+        
+        self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
+        result = self.cursor.fetchone()
+        if result and result[0]:
+            if 'basic_mango' in result[0]:
+                cooldown = cooldown - 2
+            elif 'epic_mango' in result[0]:
+                cooldown = cooldown - 2
+            elif 'mythic_mango' in result[0]:
+                cooldown = cooldown - 2
+            elif 'legendary_mango' in result[0]:
+                cooldown = cooldown - 3
+
+
+        if cooldown < 1:
+            cooldown = 1
+
 
         self.cursor.execute(f'SELECT last_feed FROM "{self.usern}"')
         last_feed_result = self.cursor.fetchone()  
@@ -86,12 +111,19 @@ class Capybara_Controller:
             seconds_left = int(time_left.total_seconds() % 60)
             return (f'🐹 Капибара сыта! Приходи через {minutes_left} мин {seconds_left} сек 🕐', False)
         else:
+            self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
+            result = self.cursor.fetchone()
+            papito_tok_za_lvl = 25
+            if result and result[0]:
+                if result[0] == 'legendary_mango':
+                    papito_tok_za_lvl = 125
+            
             self.cursor.execute(f'''UPDATE "{self.usern}" 
                             SET capybara_level = capybara_level + 1, 
                             last_feed = ?,
-                            papito_tokens = papito_tokens + 25''', (now,))
+                            papito_tokens = papito_tokens + {papito_tok_za_lvl}''', (now,))
             self.conn.commit()
-            return ('✅ Капибара покормлена! +1 уровень и +25 токенов 🎉🐹💰', True)
+            return (f'✅ Капибара покормлена! +1 уровень и + {papito_tok_za_lvl} токенов 🎉🐹💰', True)
 
 
     def create_capy(self):
@@ -113,7 +145,8 @@ class Capybara_Controller:
                                     capybara_level INTEGER DEFAULT 1,
                                     last_feed TIMESTAMP,
                                     papito_tokens INTEGER DEFAULT 1,
-                                    inventory TEXT DEFAULT '[]'
+                                    inventory TEXT DEFAULT '[]',
+                                    mangomon TEXT
                                 )''')
             self.cursor.execute(f'''INSERT INTO "{self.usern}" 
                                 (capybara_name, last_feed) VALUES (?, ?)''',
@@ -204,7 +237,13 @@ class Capybara_Controller:
         elif item_id == 2:
             self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
         elif item_id == 3:
+            self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
+            result = self.cursor.fetchone()
             random_tok = random.randint(1, 101)
+            
+            if result and result[0]:
+                if result[0] == 'mythic_mango':
+                    random_tok = random.randint(25, 101)
             self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (random_tok,))
             self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
             self.conn.commit()
@@ -213,3 +252,33 @@ class Capybara_Controller:
         self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
         self.conn.commit()
         return (f"✅ {item} куплен!", True)
+    
+
+    @capybara_req_dec
+    def buy_mangomon(self,message):
+        self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
+        result = self.cursor.fetchone()
+        if result[0] < 500:
+            return (f"Не хватает папито токенов! Нужно 500 а у тебя {result[0]}",False)
+        else:
+            mango_types = list(self.images['mangomons'].keys())
+            chances = [45, 30, 15, 10]
+            new_mango = random.choices(mango_types,weights=chances,k=1)[0]
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - 500')
+            self.cursor.execute(f'UPDATE "{self.usern}" SET mangomon =?',(new_mango,))
+            if new_mango == 'epic_mango':
+                self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + 500')
+            elif new_mango == 'mythic_mango':
+                self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + 500')     
+            self.conn.commit()
+            return (new_mango,True)
+        
+
+    @capybara_req_dec
+    def get_my_mango(self,message):
+        self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
+        result = self.cursor.fetchone()
+        if result and result[0]:
+            return (result[0],True)
+        else:
+            return ('У вас нету мангомона! Купите командой /buy_mango',False)

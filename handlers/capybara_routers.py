@@ -50,7 +50,7 @@ async def capybara_command_feed(message:Message):
         return
     
     if success:
-        await message.answer(result)
+        await message.answer_photo(FSInputFile(capy.images['capy_pokormlena']),caption=result)
     else:
         await message.answer_photo(FSInputFile(capy.images['capy_eat']), caption=result)
     
@@ -121,7 +121,7 @@ async def shop_command(message:Message):
     )
 
     button3 = InlineKeyboardButton(
-        text="🎲 Лотерея - 25 🪙",
+        text="🎲 Лотерея - 45 🪙",
         callback_data="buy_3"
     )
 
@@ -129,7 +129,7 @@ async def shop_command(message:Message):
         [button1, button2],
         [button3]             
     ])
-    await message.answer("🛒 **МАГАЗИН ДЛЯ КАПИБАРЫ** 🛒\n\nВыбери товар:\n🍎 Яблоко - Ты сможешь кормить капибару на 1 минуту раньше\n🍉 Арбуз - 2 уровня сразу\n🎲 Лотерея - от 1 до 100 папито токенов", 
+    await message.answer_photo(FSInputFile(capy.images['capy_shop']),caption="🛒 **МАГАЗИН ДЛЯ КАПИБАРЫ** 🛒\n\nВыбери товар:\n🍎 Яблоко - Ты сможешь кормить капибару на 1 минуту раньше\n🍉 Арбуз - 2 уровня сразу\n🎲 Лотерея - от 1 до 100 папито токенов", 
                      reply_markup=keyboard, 
                      parse_mode="Markdown")
     

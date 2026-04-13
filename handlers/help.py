@@ -37,4 +37,6 @@ async def help_command(message):
 📸 /photo — случайная милая капибара
 👨‍💻 /info - информация о создателях
 💵 /papito_tokens - узнать баланс папито токенов
-🛒 /shop - магазин за папито токены''',reply_markup=keyboard)
+🛒 /shop - магазин за папито токены
+🍊 /buy_mango - купить мангомон
+🍊 /my_mango - посмотреть какой у тебя мангомон''',reply_markup=keyboard)
