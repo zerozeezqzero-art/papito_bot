@@ -1,7 +1,6 @@
 import requests
 from dotenv import load_dotenv
 import os
-import asyncio
 from logging_bot import try_ex_deco_sync
 
 load_dotenv()

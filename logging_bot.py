@@ -29,39 +29,3 @@ def try_ex_deco_sync(func):
             log_to_file(f"ОШИБКА в {func.__name__}: {str(e)}")
             return None
     return wrapper
-
-
-
-
-
-
-
-
-
-def troll_check(func):
-    """Декоратор для проверки режима троллинга"""
-    async def wrapper(message, *args, **kwargs):
-        try:
-            username = message.from_user.username
-            if username:
-                conn = sqlite3.connect('capy.db')
-                cursor = conn.cursor()
-                
-                # Проверяем, есть ли таблица пользователя
-                cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{username}'")
-                if cursor.fetchone():
-                    cursor.execute(f'SELECT troll_mode FROM "{username}"')
-                    result = cursor.fetchone()
-                    conn.close()
-                    
-                    # Если троллинг включён и сработал 50% шанс
-                    if result and result[0] == 1:
-                        if random.random() < 0.5:
-                            await message.reply("❌ ОШИБКА!")
-                            return
-                else:
-                    conn.close()
-        except Exception as e:
-            print(f"Ошибка в troll_check: {e}")
-        return await func(message, *args, **kwargs)
-    return wrapper

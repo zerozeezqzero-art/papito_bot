@@ -4,6 +4,7 @@ from aiogram.filters import Command
 
 from controller import Capybara_Controller
 from logging_bot import log_to_file,try_ex_deco
+import random
 router = Router()
 
 @router.message(Command('buy_mango'))
@@ -11,6 +12,13 @@ router = Router()
 async def buy_mango_command(message: Message):
     capy = Capybara_Controller(message)
     log_to_file(f'Пользователь {capy.usern} написал команду /buy_mango')
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
     result,successful = capy.buy_mangomon(message)
     if successful:
         photo = capy.images['mangomons'][result]
@@ -32,6 +40,15 @@ async def buy_mango_command(message: Message):
 async def my_mango_command(message: Message):
     capy = Capybara_Controller(message)
     log_to_file(f'Пользователь {capy.usern} написал команду /my_mango')
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
+    
     result,successful = capy.get_my_mango(message)
     texts = {
         'basic_mango': '🎉 Базовый мангомон! (60%),Он снижает кд кормления на 2 минуты',

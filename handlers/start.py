@@ -8,19 +8,24 @@ from controller import Capybara_Controller
 from .help import help_command
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
-from logging_bot import troll_check
-
+import random
 
 
 router = Router()
 
 @router.message(Command('start'))
-@troll_check
 @try_ex_deco
 async def start_command(message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /start")
 
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="➡️  ЧТО Я УМЕЮ  ⬅️", callback_data="help")]
     ])

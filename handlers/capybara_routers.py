@@ -8,7 +8,6 @@ from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,
 from controller import Capybara_Controller
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
-from logging_bot import troll_check
 
 #lib
 import random
@@ -21,7 +20,6 @@ router = Router()
 
 
 @router.message(Command('capybara'))
-@troll_check
 @try_ex_deco
 async def capybara_command_create(message:Message):
     capy = Capybara_Controller(message)
@@ -38,12 +36,18 @@ async def capybara_command_create(message:Message):
 
 
 @router.message(Command('capyfeed'))
-@troll_check
 @try_ex_deco
 async def capybara_command_feed(message:Message):
     capy = Capybara_Controller(message)
-   
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /capyfeed")
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
     result, success = capy.feed_capy(message)
     
     
@@ -62,11 +66,18 @@ async def capybara_command_feed(message:Message):
 
 
 @router.message(Command('capylevel'))
-@troll_check
 @try_ex_deco
 async def capybara_command_level(message:Message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /capylevel")
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
     lvl, success = capy.get_capy_level(message)
     if success == 'No_capy' or not success:
         await message.answer('❌ У тебя нет капибары! Создай командой /capybara')
@@ -77,21 +88,37 @@ async def capybara_command_level(message:Message):
 
 
 @router.message(Command('leaderboard'))
-@try_ex_deco
 async def leaderboard_command(message:Message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /leaderboard")
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
+    
     result = capy.leaderboard()
     await message.answer_photo(FSInputFile(capy.images['capy_leader_board']),caption=result)
     capy.close()
 
 
 @router.message(Command('photo'))
-@troll_check
 @try_ex_deco
 async def capybara_photo_command(message:Message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /photo")
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
+    
     copibara = FSInputFile(random.choice(capy.images['random_capy']))
     await message.answer_photo(copibara, caption="вот и твоя капибара...")
     capy.close()
@@ -99,11 +126,19 @@ async def capybara_photo_command(message:Message):
 
 
 @router.message(Command('papito_tokens'))
-@troll_check
 @try_ex_deco
 async def papito_tokens_command(message:Message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /papito_tokens")
+    
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
+    
     result, success = capy.get_papito_tokens(message)
     if success == 'No_capy' or not success:
         await message.answer('❌ У тебя нет капибары! Создай командой /capybara')
@@ -112,11 +147,20 @@ async def papito_tokens_command(message:Message):
 
 
 @router.message(Command('shop'))
-@troll_check
 @try_ex_deco
 async def shop_command(message:Message):
     capy = Capybara_Controller(message)
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /shop")
+    if capy.is_troll_mode(message.from_user.username):
+        if random.randint(0, 1) == 0:
+            await message.answer('ОШИБКА!❌')
+            capy.close()
+            return
+        else:
+            pass
+    
+    
+    
     button1 = InlineKeyboardButton(
         text="🍎 Яблоко - 50 🪙",
         callback_data="buy_1"

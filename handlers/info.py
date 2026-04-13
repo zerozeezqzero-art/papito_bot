@@ -4,13 +4,11 @@ from aiogram.filters import Command
 #modules import
 from logging_bot import try_ex_deco
 from logging_bot import log_to_file
-from logging_bot import troll_check
 from controller import Capybara_Controller
 
 router = Router()
 
 @router.message(Command('info'))
-@troll_check
 @try_ex_deco
 async def info_command(message):
         capy = Capybara_Controller(message)

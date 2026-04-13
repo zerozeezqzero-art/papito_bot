@@ -6,12 +6,10 @@ from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup
 from controller import Capybara_Controller
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
-from logging_bot import troll_check
 router = Router()
 
 
 @router.message(Command('help'))
-@troll_check
 @try_ex_deco
 async def help_command(message):
     

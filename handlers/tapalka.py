@@ -1,20 +1,18 @@
 
 from aiogram import Router
 from aiogram.filters import Command
-from aiogram.types import FSInputFile,InlineKeyboardButton,InlineKeyboardMarkup,Message,callback_query
+from aiogram.types import InlineKeyboardButton,InlineKeyboardMarkup
 
 
 #modules import
 from controller import Capybara_Controller
 from logging_bot import log_to_file
 from logging_bot import try_ex_deco
-from logging_bot import troll_check
 
 
 router = Router()
 
 @router.message(Command('tapalka'))
-@troll_check
 @try_ex_deco
 async def tapalka_command(message):
     capy = Capybara_Controller(message)

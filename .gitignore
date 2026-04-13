@@ -4,6 +4,3 @@ __pycache__/
 *.pyd
 .env
 .env.local
-*.db
-"capy_baras/"
-"mangomons/"
