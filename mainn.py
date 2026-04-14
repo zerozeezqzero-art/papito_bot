@@ -16,12 +16,11 @@ from handlers import mango_router
 from handlers import tap_router
 from handlers import dudos_router
 from handlers import idea_router
-
+from handlers import fish_router
 
 #lib
 import os
-from controller import get_current_time
-from logging_bot import log_to_file,try_ex_deco
+from logging_bot import log_to_file
 
 #config
 load_dotenv()
@@ -39,6 +38,7 @@ dp.include_router(mango_router)
 dp.include_router(tap_router)
 dp.include_router(dudos_router)
 dp.include_router(idea_router)
+dp.include_router(fish_router)
 
 async def start():
     bot = Bot(token=BOT_TOKEN)

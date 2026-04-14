@@ -42,15 +42,36 @@ class Capybara_Controller:
             'capy_eat': 'capy_baras/capybara_eat.jpg',
             'capy_leader_board': 'capy_baras/capy_bara_leader.png',
             "capy_pokormlena" : 'capy_baras/capy_bara_pokormlena.jpg',
-            'capy_shop' : 'capy_baras/capy_shop.jpg'
+            'capy_shop' : 'capy_baras/capy_shop.jpg',
+            "capy_fish" : 'capy_baras/capy_bara_ulov.png'
         }
         
         self.shop_items = {
             1: {'name': 'Яблоко🍎', 'price': 50, 'emoji': '🍎', 'description': 'Ускоряет кормление на 1 минуту'},
             2: {'name': 'Арбуз🍉', 'price': 100, 'description': 'Даёт +2 уровня сразу'},
             3: {'name': 'Лотерейный билет🎲', 'price': 45, 'description': 'Случайный приз от 0 до 100 токенов'},
+            4: {'name': 'Обычная удочка🎣', 'price': 100, 'description': 'Разблокируют рыбалку'},
+            5: {'name': 'Эпическая удочка🎣', 'price': 500, 'description': 'Шанс на эпическую рыбу'},
+            6: {'name': 'Легендарная удочка🎣', 'price': 1000, 'description': 'Шанс на легендарную рыбу'},
         }
 
+
+        self.fishs = {
+            'basic': [  
+                {'name': 'Плотва🐟', 'min': 3, 'max': 10},
+                {'name': 'Окунь🐠', 'min': 5, 'max': 11},
+                {'name': 'Карась🐡', 'min': 8, 'max': 12},
+                {'name': 'Щука🐟', 'min': 10, 'max': 13}
+            ],
+            'epic': [
+                {'name': 'Лосось🍣', 'min': 13, 'max': 30},
+                {'name': 'Сом🐋', 'min': 15, 'max': 31},
+                {'name': 'Форель🎣', 'min': 20, 'max': 32}
+            ],
+            'legendary': [
+                {'name': 'Тунец🍣', 'min': 50, 'max': 100},
+                {'name': 'Акула🦈', 'min': 75, 'max': 100}
+            ]}
     def capybara_req_dec(func):
         def wrapper(self, message, *args, **kwargs):
             temp_capy = Capybara_Controller(message)
@@ -227,6 +248,7 @@ class Capybara_Controller:
         if tokens < pay:
             return (f"❌ Не хватает токенов! Нужно {pay}, у тебя {tokens}", False)
         
+        
         if item_id == 1:
             self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
             result = self.cursor.fetchone()
@@ -235,8 +257,12 @@ class Capybara_Controller:
                 return ('Вы уже купили это', False)
             inventory.append(item)
             self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
+        
+        
         elif item_id == 2:
             self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
+       
+       
         elif item_id == 3:
             self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
             result = self.cursor.fetchone()
@@ -250,6 +276,21 @@ class Capybara_Controller:
             self.conn.commit()
             return (f"✅ {item} куплен! +{random_tok} токенов", True)
         
+        
+        
+        elif item_id in [4,5,6]:
+            self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
+            result = self.cursor.fetchone()
+            inventory = json.loads(result[0]) if result and result[0] else []
+            if item in inventory:
+                return ('Вы уже купили это', False)
+            inventory = [i for i in inventory if 'удочка' not in i.lower()]
+            inventory.append(item)
+            self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
+        
+
+       
+       
         self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
         self.conn.commit()
         return (f"✅ {item} куплен!", True)
@@ -313,3 +354,24 @@ class Capybara_Controller:
             self.cursor.execute(f'SELECT troll_mode FROM "{username}"')
             result = self.cursor.fetchone()
             return result and result[0] == 1
+    
+    @capybara_req_dec 
+    def fishing(self,message):
+        self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
+        result = self.cursor.fetchone()
+        inventory = json.loads(result[0]) if result and result[0] else []
+        if 'Обычная удочка🎣' in inventory:
+            rarity = 'basic'
+        elif 'Эпическая удочка🎣' in inventory:
+            rarity = random.choices(['basic','epic'],weights=[40,60])[0]
+        elif 'Легендарная удочка🎣' in inventory:
+            rarity = random.choices(['basic','epic','legendary'],weights=[25,40,35])[0]
+        else:
+            return (f'❌ У тебя нет удочки! Купи в магазине /shop', False)
+
+        fish_data = random.choice(self.fishs[rarity])
+        fish_name = fish_data['name']
+        fish_reward = random.randint(fish_data['min'],fish_data['max'])
+        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + {fish_reward}')
+        self.conn.commit()
+        return (f'🎣 Ты поймал: {fish_name}!\n💰 +{fish_reward} токенов!', True)

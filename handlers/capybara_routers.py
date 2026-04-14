@@ -176,14 +176,40 @@ async def shop_command(message:Message):
         callback_data="buy_3"
     )
 
+    button4 = InlineKeyboardButton(
+        text="🎣 Обычная - 100 🪙",
+        callback_data="buy_4"
+    )
+
+    button5 = InlineKeyboardButton(
+        text="🎣 Эпическая - 500  🪙",
+        callback_data="buy_5"
+    )
+
+
+    button6 = InlineKeyboardButton(
+        text="🎣 Легендарная - 1000  🪙",
+        callback_data="buy_6"
+    )
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [button1, button2],
-        [button3]             
+        [button1, button2,button3],
+        [button4,button5],
+        [button6]   
     ])
-    await message.answer_photo(FSInputFile(capy.images['capy_shop']),caption="🛒 **МАГАЗИН ДЛЯ КАПИБАРЫ** 🛒\n\nВыбери товар:\n🍎 Яблоко - Ты сможешь кормить капибару на 1 минуту раньше\n🍉 Арбуз - 2 уровня сразу\n🎲 Лотерея - от 1 до 100 папито токенов", 
-                     reply_markup=keyboard, 
-                     parse_mode="Markdown")
-    
+    await message.answer_photo(
+        FSInputFile(capy.images['capy_shop']),
+        caption="🛒 **МАГАЗИН ДЛЯ КАПИБАРЫ** 🛒\n\n"
+                "Выбери товар:\n"
+                "🍎 Яблоко - Ты сможешь кормить капибару на 1 минуту раньше\n"
+                "🍉 Арбуз - 2 уровня сразу\n"
+                "🎲 Лотерея - от 1 до 100 папито токенов\n"
+                "🎣 Обычная удочка - разблокирует рыбалку\n"
+                "🎣 Эпическая удочка - шанс на редкую рыбу\n"
+                "🎣 Легендарная удочка - шанс на легендарную рыбу", 
+        reply_markup=keyboard, 
+        parse_mode="Markdown"
+    )
     capy.close()
 
 
@@ -253,3 +279,73 @@ async def buy3_command(callback : callback_query):
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
+
+
+
+@router.callback_query(lambda c:c.data == 'buy_4')
+@try_ex_deco
+async def buy4_command(callback : callback_query):
+
+    class FakeMessage:
+        from_user = callback.from_user
+
+    fakemessage = FakeMessage()
+    capy = Capybara_Controller(fakemessage)
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Обычная удочка")
+    result,succsess = capy.purchase_item(fakemessage,4)
+    
+    if succsess == 'No_capy':
+        await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
+    else:
+        await callback.message.answer(result)
+        await callback.answer()
+    capy.close()
+
+
+
+
+@router.callback_query(lambda c:c.data == 'buy_5')
+@try_ex_deco
+async def buy5_command(callback : callback_query):
+
+    class FakeMessage:
+        from_user = callback.from_user
+
+    fakemessage = FakeMessage()
+    capy = Capybara_Controller(fakemessage)
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Эпическая удочка")
+
+
+    result,succsess = capy.purchase_item(fakemessage,5)
+    
+    if succsess == 'No_capy':
+        await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
+    else:
+        await callback.message.answer(result)
+        await callback.answer()
+    capy.close()
+
+
+
+
+@router.callback_query(lambda c:c.data == 'buy_6')
+@try_ex_deco
+async def buy6_command(callback : callback_query):
+
+    class FakeMessage:
+        from_user = callback.from_user
+
+    fakemessage = FakeMessage()
+    capy = Capybara_Controller(fakemessage)
+    log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Легендарная удочка")
+
+    result,succsess = capy.purchase_item(fakemessage,6)
+    
+    if succsess == 'No_capy':
+        await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
+    else:
+        await callback.message.answer(result)
+        await callback.answer()
+    capy.close()
+
+
