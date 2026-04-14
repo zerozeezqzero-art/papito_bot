@@ -306,8 +306,10 @@ class Capybara_Controller:
 
 
     def is_troll_mode(self, username):
-        """Проверяет, включён ли режим троллинга для пользователя"""
-        self.cursor.execute(f'SELECT troll_mode FROM "{username}"')
-        result = self.cursor.fetchone()
-        return result and result[0] == 1
-
+        self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{username}'")
+        if not self.cursor.fetchone():
+            return False
+        else:
+            self.cursor.execute(f'SELECT troll_mode FROM "{username}"')
+            result = self.cursor.fetchone()
+            return result and result[0] == 1
