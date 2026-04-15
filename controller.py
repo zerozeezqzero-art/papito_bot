@@ -257,17 +257,8 @@ class Capybara_Controller:
                 return ('Вы уже купили это', False)
             inventory.append(item)
             self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
-
-
-            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-            self.conn.commit()
-            return (f"✅ {item} куплен!", True)
-        
-        
         elif item_id == 2:
             self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
-            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-            self.conn.commit()
        
         elif item_id == 3:
             self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
@@ -281,9 +272,6 @@ class Capybara_Controller:
             self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
             self.conn.commit()
             return (f"✅ {item} куплен! +{random_tok} токенов", True)
-        
-        
-        
         elif item_id in [4,5,6]:
             self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
             result = self.cursor.fetchone()
@@ -293,11 +281,12 @@ class Capybara_Controller:
             inventory = [i for i in inventory if 'удочка' not in i.lower()]
             inventory.append(item)
             self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
-            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-            self.conn.commit()
-            return (f"✅ {item} куплен!", True)
     
+        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+        self.conn.commit()
+        return (f"✅ {item} куплен!", True)
 
+        
     @capybara_req_dec
     def buy_mangomon(self,message):
         self.cursor.execute(f'SELECT papito_tokens FROM "{self.usern}"')
