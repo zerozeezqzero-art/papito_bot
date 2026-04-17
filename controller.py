@@ -373,38 +373,47 @@ class Capybara_Controller:
             self.cursor.execute(f'SELECT troll_mode FROM "{username}"')
             result = self.cursor.fetchone()
             return result and result[0] == 1
-    
+        
     @capybara_req_dec 
-    def fishing(self,message):
-        time = get_current_time()
+    def fishing(self, message):
+        now = get_current_time()
+        
+        # Проверяем инвентарь
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
         inventory = json.loads(result[0]) if result and result[0] else []
+        
         if 'Обычная удочка🎣' in inventory:
             rarity = 'basic'
             cd = 20
         elif 'Эпическая удочка🎣' in inventory:
-            rarity = random.choices(['basic','epic'],weights=[40,60])[0]
+            rarity = random.choices(['basic', 'epic'], weights=[40, 60])[0]
             cd = 10
         elif 'Легендарная удочка🎣' in inventory:
-            rarity = random.choices(['basic','epic','legendary'],weights=[25,40,35])[0]
+            rarity = random.choices(['basic', 'epic', 'legendary'], weights=[25, 40, 35])[0]
             cd = 5
         else:
             return (f'❌ У тебя нет удочки! Купи в магазине /shop', False)
-
         
+        # Проверяем кулдаун
         self.cursor.execute(f'SELECT fishing_cooldown FROM "{self.usern}"')
         r = self.cursor.fetchone()
-        last_time = datetime.fromisoformat(r[0]) if r and r[0] else None
-        if last_time:
-            if time - last_time < timedelta(seconds=cd):
-                wait = int(cd - (time - last_time).total_seconds())
-                return (f'Подожди {wait} секунд!',False)
         
+        if r and r[0]:
+            last_time = datetime.fromisoformat(r[0]) if isinstance(r[0], str) else r[0]
+            seconds_passed = (now - last_time).total_seconds()
+            
+            if seconds_passed < cd:
+                wait = int(cd - seconds_passed)
+                return (f'⏰ Подожди {wait} секунд перед следующей рыбалкой!', False)
+        
+        # Рыбалка
         fish_data = random.choice(self.fishs[rarity])
         fish_name = fish_data['name']
-        fish_reward = random.randint(fish_data['min'],fish_data['max'])
-        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + {fish_reward}')
+        fish_reward = random.randint(fish_data['min'], fish_data['max'])
+        
+        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (fish_reward,))
+        self.cursor.execute(f'UPDATE "{self.usern}" SET fishing_cooldown = ?', (now,))
         self.conn.commit()
-        self.cursor.execute(f'UPDATE "{self.usern}" SET fishing_cooldown = ?', (time,))
+        
         return (f'🎣 Ты поймал: {fish_name}!\n💰 +{fish_reward} токенов!', True)
