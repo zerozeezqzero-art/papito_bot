@@ -4,3 +4,5 @@ __pycache__/
 *.pyd
 .env
 .env.local
+updater
+bot_log.txt

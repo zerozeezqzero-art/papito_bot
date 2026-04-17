@@ -15,6 +15,12 @@ async def idea_command(message: Message):
         capy = Capybara_Controller(message)
         log_to_file(f'Пользователь {capy.usern} написал команду /idea')
         user_idea = message.text.replace('/idea','')
-        log_to_file(f'Пользователь {capy.usern} предложил идею для бота: {user_idea}')
-        with open('users_idea.txt', 'a',encoding='UTF-8') as f:
-            f.write(f'{capy.usern} предложил идею {user_idea}\n')
+        if user_idea.strip():
+            log_to_file(f'пользователь {capy.usern} предложил идею {user_idea}')
+            with open('users_idea.txt', 'a', encoding='UTF-8') as f:
+                f.write(f'{capy.usern} предложил идею: {user_idea}\n')
+            await message.answer('✅ Идея сохранена! Спасибо! 🐹')
+        else:
+            await message.answer('❌ Ты не написал идею!\nПример: `/idea Добавить мини-игру`', parse_mode="Markdown")
+            
+        capy.close()

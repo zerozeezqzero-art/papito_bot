@@ -148,6 +148,7 @@ class Capybara_Controller:
 
 
     def create_capy(self):
+        time = get_current_time()
         self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{self.usern}'")
         table_exists = self.cursor.fetchone()
         if table_exists:
@@ -162,17 +163,19 @@ class Capybara_Controller:
             return True
         else:
             self.cursor.execute(f'''CREATE TABLE IF NOT EXISTS "{self.usern}" (
-                                    capybara_name TEXT,
-                                    capybara_level INTEGER DEFAULT 1,
-                                    last_feed TIMESTAMP,
-                                    papito_tokens INTEGER DEFAULT 1,
-                                    inventory TEXT DEFAULT '[]',
-                                    mangomon TEXT,
-                                    troll_mode INTEGER DEFAULT 0
-                                )''')
+                capybara_name TEXT,
+                capybara_level INTEGER DEFAULT 1,
+                last_feed TIMESTAMP,
+                papito_tokens INTEGER DEFAULT 1,
+                inventory TEXT DEFAULT '[]',
+                mangomon TEXT,
+                troll_mode INTEGER DEFAULT 0,
+                fishing_cooldown TIMESTAMP,
+                watermelon_cooldown TIMESTAMP
+            )''')
             self.cursor.execute(f'''INSERT INTO "{self.usern}" 
-                                (capybara_name, last_feed) VALUES (?, ?)''',
-                                (f"Capy_{self.usern}", get_current_time()))
+                (capybara_name, last_feed) VALUES (?, ?)''',
+                (f"Capy_{self.usern}", get_current_time()))
             self.conn.commit()
             return True
 
@@ -257,9 +260,29 @@ class Capybara_Controller:
                 return ('Вы уже купили это', False)
             inventory.append(item)
             self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
+            
+            
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+            self.conn.commit()
+            return (f"✅ {item} куплен!", True)
+        
+        
         elif item_id == 2:
+            self.cursor.execute(f'SELECT watermelon_cooldown FROM "{self.usern}"')
+            t = self.cursor.fetchone()
+            if t[0]:
+                last_time = datetime.fromisoformat(t[0])
+                if get_current_time() - last_time < timedelta(seconds=30):
+                    wait = int(30 - (get_current_time() - last_time).total_seconds())
+                    return (f'⏰ Подожди {wait} секунд!', False)
+            self.cursor.execute(f'UPDATE "{self.usern}" SET watermelon_cooldown = ?', (get_current_time(),))
             self.cursor.execute(f'UPDATE "{self.usern}" SET capybara_level = capybara_level + 2')
-       
+           
+           
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+            self.conn.commit()
+            return (f"✅ {item} куплен!", True)
+            
         elif item_id == 3:
             self.cursor.execute(f'SELECT mangomon FROM "{self.usern}"')
             result = self.cursor.fetchone()
@@ -269,8 +292,12 @@ class Capybara_Controller:
                 if result[0] == 'mythic_mango':
                     random_tok = random.randint(25, 101)
             self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + ?', (random_tok,))
+            
+            
             self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
             self.conn.commit()
+            
+            
             return (f"✅ {item} куплен! +{random_tok} токенов", True)
         elif item_id in [4,5,6]:
             self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
@@ -281,10 +308,11 @@ class Capybara_Controller:
             inventory = [i for i in inventory if 'удочка' not in i.lower()]
             inventory.append(item)
             self.cursor.execute(f'UPDATE "{self.usern}" SET inventory = ?', (json.dumps(inventory),))
-    
-        self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
-        self.conn.commit()
-        return (f"✅ {item} куплен!", True)
+            
+            
+            self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens - ?', (pay,))
+            self.conn.commit()
+            return (f"✅ {item} куплен!", True)
 
         
     @capybara_req_dec
@@ -348,21 +376,35 @@ class Capybara_Controller:
     
     @capybara_req_dec 
     def fishing(self,message):
+        time = get_current_time()
         self.cursor.execute(f'SELECT inventory FROM "{self.usern}"')
         result = self.cursor.fetchone()
         inventory = json.loads(result[0]) if result and result[0] else []
         if 'Обычная удочка🎣' in inventory:
             rarity = 'basic'
+            cd = 20
         elif 'Эпическая удочка🎣' in inventory:
             rarity = random.choices(['basic','epic'],weights=[40,60])[0]
+            cd = 10
         elif 'Легендарная удочка🎣' in inventory:
             rarity = random.choices(['basic','epic','legendary'],weights=[25,40,35])[0]
+            cd = 5
         else:
             return (f'❌ У тебя нет удочки! Купи в магазине /shop', False)
 
+        
+        self.cursor.execute(f'SELECT fishing_cooldown FROM "{self.usern}"')
+        r = self.cursor.fetchone()
+        last_time = datetime.fromisoformat(r[0]) if r and r[0] else None
+        if last_time:
+            if time - last_time < timedelta(seconds=cd):
+                wait = int(cd - (time - last_time).total_seconds())
+                return (f'Подожди {wait} секунд!',False)
+        
         fish_data = random.choice(self.fishs[rarity])
         fish_name = fish_data['name']
         fish_reward = random.randint(fish_data['min'],fish_data['max'])
         self.cursor.execute(f'UPDATE "{self.usern}" SET papito_tokens = papito_tokens + {fish_reward}')
         self.conn.commit()
+        self.cursor.execute(f'UPDATE "{self.usern}" SET fishing_cooldown = ?', (time,))
         return (f'🎣 Ты поймал: {fish_name}!\n💰 +{fish_reward} токенов!', True)
