@@ -26,8 +26,6 @@ async def help_command(message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     
     log_to_file(f"➡️ Пользователь {capy.usern} написал команду /help")
-
-   
     await message.answer_photo(FSInputFile(capy.images['help_photo']),caption='''🐹 CapybaraBot — твой пушистый друг\n
 🤖 /gpt "вопрос" — спросить о чём угодно у CapybaraGPT
 🐾 /capybara — завести свою капибару

@@ -1,4 +1,3 @@
-import cv2
 from aiogram import Router
 from aiogram.types import Message,FSInputFile
 from aiogram.filters import Command
