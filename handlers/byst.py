@@ -3,13 +3,15 @@ from aiogram.types import Message,FSInputFile
 from aiogram.filters import Command
 from PIL import Image
 from controller import Capybara_Controller
-
+from logging_bot import try_ex_deco,log_to_file
 
 router = Router()
 
 @router.message(Command('byst'))
+@try_ex_deco
 async def start_command(message: Message):
     capy = Capybara_Controller(message)
+    log_to_file(f'Пользователь {capy.usern} написал команду /byst')
     if message.photo:
         photo = message.photo[-1]
         file = await message.bot.get_file(photo.file_id)
