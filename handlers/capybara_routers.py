@@ -48,19 +48,19 @@ async def capybara_command_feed(message:Message):
             return
         else:
             pass
-    result, success = capy.feed_capy(message)
-    
+    result, success,quest_completed,reward = capy.feed_capy(message)
     
     if result is None:
         await message.answer('❌ У тебя нет капибары! Создай командой /capybara')
         capy.close()
         return
-    
     if success:
-        await message.answer_photo(FSInputFile(capy.images['capy_pokormlena']),caption=result)
+        if quest_completed:
+            await message.answer(f"🎉 Квест выполнен! +{reward} токенов!")
+        await message.answer_photo(FSInputFile(capy.images['capy_pokormlena']), caption=result)
     else:
         await message.answer_photo(FSInputFile(capy.images['capy_eat']), caption=result)
-    
+        
     capy.close()
 
 
@@ -223,13 +223,15 @@ async def buy1_command(callback : callback_query):
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Яблоко")
-
-
-    result,succsess = capy.purchase_item(fakemessage,1)
+    result, success, quest_completed, quest_reward = capy.purchase_item(fakemessage, 1)
     
-    if succsess == 'No_capy':
+    
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
+    
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
@@ -249,11 +251,13 @@ async def buy2_command(callback : callback_query):
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Арбуз")
 
 
-    result,succsess = capy.purchase_item(fakemessage,2)
+    result, success, quest_completed, quest_reward = capy.purchase_item(fakemessage,2)
     
-    if succsess == 'No_capy':
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
@@ -271,11 +275,13 @@ async def buy3_command(callback : callback_query):
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Лотерея")
 
 
-    result,succsess = capy.purchase_item(fakemessage,3)
+    result, success, quest_completed, quest_reward = capy.purchase_item(fakemessage,3)
     
-    if succsess == 'No_capy':
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
@@ -292,11 +298,13 @@ async def buy4_command(callback : callback_query):
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Обычная удочка")
-    result,succsess = capy.purchase_item(fakemessage,4)
+    result,success,quest_completed,quest_reward = capy.purchase_item(fakemessage,4)
     
-    if succsess == 'No_capy':
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
@@ -314,13 +322,13 @@ async def buy5_command(callback : callback_query):
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Эпическая удочка")
-
-
-    result,succsess = capy.purchase_item(fakemessage,5)
+    result,success,quest_completed,quest_reward = capy.purchase_item(fakemessage,5)
     
-    if succsess == 'No_capy':
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()
@@ -338,12 +346,13 @@ async def buy6_command(callback : callback_query):
     fakemessage = FakeMessage()
     capy = Capybara_Controller(fakemessage)
     log_to_file(f"➡️ Пользователь {capy.usern} нажал кнопку: Легендарная удочка")
-
-    result,succsess = capy.purchase_item(fakemessage,6)
+    result,success,quest_completed,quest_reward = capy.purchase_item(fakemessage,6)
     
-    if succsess == 'No_capy':
+    if success == 'No_capy':
         await callback.answer('❌ У тебя нет капибары! Создай командой /capybara')
     else:
+        if quest_completed:
+            await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
         await callback.message.answer(result)
         await callback.answer()
     capy.close()

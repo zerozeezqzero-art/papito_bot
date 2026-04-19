@@ -24,16 +24,24 @@ async def fish_command(message:Message):
 
 
 
-@router.callback_query(lambda c:c.data == 'ribalka')
+@router.callback_query(lambda c: c.data == 'ribalka')
 @try_ex_deco
-async def ribalka(callback:CallbackQuery):
+async def ribalka(callback: CallbackQuery):
     class FakeMessage:
         from_user = callback.from_user
+    
     fk = FakeMessage()
     capy = Capybara_Controller(fk)
-    result,succsesful = capy.fishing(fk)
-    if succsesful:
-        await callback.message.answer_photo(FSInputFile(capy.images['capy_fish']),caption=result)
+    
+    result, success, quest_completed, quest_reward = capy.fishing(fk)
+    
+    if quest_completed:
+        await callback.message.answer(f"🎉 Квест выполнен! +{quest_reward} токенов!")
+    
+    if success:
+        await callback.message.answer_photo(FSInputFile(capy.images['capy_fish']), caption=result)
     else:
         await callback.message.answer(result)
+    
+    await callback.answer()
     capy.close()
