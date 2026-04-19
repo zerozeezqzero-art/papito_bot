@@ -9,3 +9,4 @@ from .dudosing import router as dudos_router
 from .idea import router as idea_router
 from .fish import router as fish_router
 from .quest import router as quest_router
+from .byst import router as byst_router

@@ -1,19 +1,30 @@
 import cv2
 from aiogram import Router
-from aiogram.types import Message
+from aiogram.types import Message,FSInputFile
 from aiogram.filters import Command
+from PIL import Image
+from controller import Capybara_Controller
+
 
 router = Router()
 
 @router.message(Command('byst'))
 async def start_command(message: Message):
-    
-    img = cv2.imread("input.png")
-    img = cv2.GaussianBlur(img, (11, 11), 0)
+    capy = Capybara_Controller(message)
+    if message.photo:
+        photo = message.photo[-1]
+        file = await message.bot.get_file(photo.file_id)
+        filepath = f"byst_kartinok/{photo.file_id}_{capy.usern}.jpg"
+        '''SAVE PHOTO'''
+        
+        await message.bot.download_file(file.file_path, filepath)
+        
+        '''byst'''
+        img = Image.open(filepath)
+        img.save(filepath, quality=3)
+        img.close()
 
-    cv2.imwrite("output.png", img)
-
-    await message.answer_photo(photo=open("output.png", "rb"))
-
-
-"""ДОДЕЛАТЬ ПОТОМ!!! БУСТ КАРТИНОК ОПЕН ЦИВИ"""
+        await message.answer_photo(FSInputFile(filepath), caption='Фото забущено')
+        
+    else:
+        await message.answer("❌ Отправь фото с командой /byst")

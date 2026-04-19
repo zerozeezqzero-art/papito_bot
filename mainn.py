@@ -18,6 +18,7 @@ from handlers import dudos_router
 from handlers import idea_router
 from handlers import fish_router
 from handlers import quest_router
+from handlers import byst_router
 
 #lib
 import os
@@ -41,6 +42,7 @@ dp.include_router(dudos_router)
 dp.include_router(idea_router)
 dp.include_router(fish_router)
 dp.include_router(quest_router)
+dp.include_router(byst_router)
 
 async def start():
     bot = Bot(token=BOT_TOKEN)

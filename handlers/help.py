@@ -20,7 +20,7 @@ async def help_command(message):
 
     button = InlineKeyboardButton(
         text="➕ Добавить в группу",
-        url=f"https://t.me/{'python_174bot'}?startgroup=start"
+        url=f"https://t.me/{'Papito_313bot'}?startgroup=start"
     )
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
@@ -41,4 +41,5 @@ async def help_command(message):
 🍊 /buy_mango - купить мангомон
 🍊 /my_mango - посмотреть какой у тебя мангомон
 👾 /tapalka - тапать за папито токены
-💡 /idea "Ваша идея" - предложить идея для развития папито бота''',reply_markup=keyboard)
+💡 /idea "Ваша идея" - предложить идея для развития папито бота
+✔ /quest - Квесты за папито токены''',reply_markup=keyboard)
